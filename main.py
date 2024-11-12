@@ -1,7 +1,11 @@
 import streamlit as st
 import pandas as pd
 
-data = pd.read_csv('/mnt/data/D. Composición Anual de residuos domiciliarios_Distrital_2019_2022.csv')
+# URL del archivo CSV en GitHub
+url_csv = "https://raw.githubusercontent.com/tu_usuario/tu_repositorio/main/D.%20Composición%20Anual%20de%20residuos%20domiciliarios_Distrital_2019_2022.csv"
+
+# Leer el archivo CSV directamente desde la URL
+data = pd.read_csv(url_csv)
 
 # Título de la aplicación
 st.title("Análisis de Composición Anual de Residuos Domiciliarios (2019-2022)")
