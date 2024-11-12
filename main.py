@@ -1,11 +1,15 @@
 import streamlit as st
 import pandas as pd
 
-# URL del archivo CSV en GitHub
-url_csv = "https://raw.githubusercontent.com/tu_usuario/tu_repositorio/main/D.%20Composición%20Anual%20de%20residuos%20domiciliarios_Distrital_2019_2022.csv"
+# URL del archivo CSV en GitHub (en formato "raw")
+url_csv = "https://raw.githubusercontent.com/Sawamurarebatta/Recihome/main/D.%20Composición%20Anual%20de%20residuos%20domiciliarios_Distrital_2019_2022.csv"
 
-# Leer el archivo CSV directamente desde la URL
-data = pd.read_csv(url_csv)
+# Leer el archivo CSV directamente desde la URL especificando la codificación
+try:
+    data = pd.read_csv(url_csv, encoding='utf-8')
+except UnicodeDecodeError:
+    # Si utf-8 falla, intenta con latin-1
+    data = pd.read_csv(url_csv, encoding='latin-1')
 
 # Título de la aplicación
 st.title("Análisis de Composición Anual de Residuos Domiciliarios (2019-2022)")
