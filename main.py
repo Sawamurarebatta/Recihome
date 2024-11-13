@@ -60,10 +60,10 @@ if uploaded_file is not None:
 
         st.sidebar.header("Estadísticas Generales")
         st.subheader("Medidas de Tendencia Central")
-        st.write("**Media:**", stats['mean'])
-        st.write("**Mediana:**", stats['median'])
-        st.write("**Moda:**", stats['mode'])
-        st.write("**Rango:**", stats['range'])
+        st.write("*Media:*", stats['mean'])
+        st.write("*Mediana:*", stats['median'])
+        st.write("*Moda:*", stats['mode'])
+        st.write("*Rango:*", stats['range'])
 
         st.subheader("Resumen Estadístico")
         st.write(stats['description'])
@@ -77,11 +77,11 @@ if uploaded_file is not None:
 
         # Visualizaciones
         st.subheader("Visualización de Datos")
-        st.write("**Cantidad de residuos por región**")
+        st.write("*Cantidad de residuos por región*")
         residuos_por_region = data.groupby("region")['cantidad'].sum()
         st.bar_chart(residuos_por_region)
 
-        st.write(f"**Medidas de Tendencia Central para la región '{region}' y residuo '{tipo_residuo}'**")
+        st.write(f"*Medidas de Tendencia Central para la región '{region}' y residuo '{tipo_residuo}'*")
         tendencia_data = pd.DataFrame({
             "Medida": ["Media", "Mediana", "Moda"],
             "Valor": [
@@ -92,13 +92,13 @@ if uploaded_file is not None:
         })
         st.bar_chart(tendencia_data.set_index("Medida"))
 
-        st.write(f"**Región con más residuos del tipo '{tipo_residuo}'**")
+        st.write(f"*Región con más residuos del tipo '{tipo_residuo}'*")
         residuos_por_tipo_region = data[data['tipo_residuo'] == tipo_residuo].groupby("region")['cantidad'].sum()
         region_max_residuos = residuos_por_tipo_region.idxmax()
         max_residuos = residuos_por_tipo_region.max()
         st.write(f"La región con más residuos del tipo '{tipo_residuo}' es '{region_max_residuos}' con {max_residuos} unidades.")
 
-        st.write(f"**Comparación entre tipos de residuos en la región '{region}'**")
+        st.write(f"*Comparación entre tipos de residuos en la región '{region}'*")
         comparacion_residuos = data[data['region'] == region].groupby("tipo_residuo")['cantidad'].sum()
         st.bar_chart(comparacion_residuos)
 
@@ -126,6 +126,5 @@ if uploaded_file is not None:
         st.error("El archivo cargado no contiene las columnas necesarias para el análisis.")
 else:
     st.info("Por favor, sube un archivo CSV para comenzar.")
-
 
 
