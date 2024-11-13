@@ -1,3 +1,4 @@
 plotly
 plotly.express
 folium
+streamlit_folium
