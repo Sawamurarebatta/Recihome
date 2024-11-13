@@ -1,126 +1,96 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 
-# Configuración inicial de la página
-st.set_page_config(page_title="Recihome - Análisis de Residuos Domiciliarios")
+# Título y descripción de la aplicación
 st.title("Recihome - Análisis de Residuos Domiciliarios")
 st.write("Esta aplicación permite analizar datos de residuos para facilitar la toma de decisiones ambientales.")
 
-# Cargar archivo CSV
-st.header("Carga de Datos")
-uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])
+# Sección para cargar el archivo CSV
+st.sidebar.header("Carga de Datos")
+uploaded_file = st.sidebar.file_uploader("Sube un archivo CSV", type=["csv"])
+
+# Validación y previsualización de datos
 if uploaded_file is not None:
-    # Leer archivo CSV
+    # Cargar datos
     data = pd.read_csv(uploaded_file)
-    st.write("Vista previa de los datos:")
+    
+    # Mostrar una vista previa de los datos
+    st.subheader("Vista Previa de los Datos Cargados")
     st.write(data.head())
-
-    # Validación de columnas necesarias
-    columnas_necesarias = ["REGION", "TIPO_RESIDUO", "CANTIDAD"]
-    if all(col in data.columns for col in columnas_necesarias):
-        # Medidas de tendencia central y estadísticas generales
-        st.header("Medidas de Tendencia Central y Datos Generales")
+    
+    # Verificar que las columnas necesarias están presentes
+    required_columns = ["tipo_residuo", "region", "cantidad"]
+    if all(column in data.columns for column in required_columns):
         
-        # Calcular estadísticas
-        media = data["CANTIDAD"].mean()
-        mediana = data["CANTIDAD"].median()
-        moda = data["CANTIDAD"].mode().iloc[0] if not data["CANTIDAD"].mode().empty else np.nan
-        maximo = data["CANTIDAD"].max()
-        minimo = data["CANTIDAD"].min()
-        desviacion = data["CANTIDAD"].std()
+        # Sección de estadísticas generales
+        st.sidebar.header("Estadísticas Generales")
         
-        # Mostrar estadísticas
-        st.write("**Resumen Estadístico**")
-        st.write(pd.DataFrame({
-            "Media": [media],
-            "Mediana": [mediana],
-            "Moda": [moda],
-            "Máximo": [maximo],
-            "Mínimo": [minimo],
-            "Desviación Estándar": [desviacion]
-        }))
-
-        # Filtros interactivos
-        st.header("Filtros Interactivos")
-        
-        tipo_residuo = st.selectbox("Selecciona el tipo de residuo", data["TIPO_RESIDUO"].unique())
-        region = st.selectbox("Selecciona la región", data["REGION"].unique())
-        
-        # Filtrar datos
-        data_filtrada = data[(data["TIPO_RESIDUO"] == tipo_residuo) & (data["REGION"] == region)]
-
-        # Gráficas y visualizaciones
-        st.header("Gráficas y Visualizaciones")
-
-        # Gráfica de barras de cantidad de residuos por tipo y región
-        st.subheader("Cantidad de Residuos por Tipo y Región")
-        plt.figure(figsize=(10, 6))
-        sns.barplot(data=data, x="REGION", y="CANTIDAD", hue="TIPO_RESIDUO")
-        plt.xticks(rotation=45)
-        st.pyplot(plt)
-
-        # Gráfica de medidas de tendencia central para el tipo de residuo seleccionado
+        # Calcular medidas de tendencia central
         st.subheader("Medidas de Tendencia Central")
-        plt.figure(figsize=(6, 4))
-        sns.boxplot(data=data_filtrada, y="CANTIDAD")
-        st.pyplot(plt)
-
-        # Gráfica de la región con más residuos
-        st.subheader("Región con Mayor Cantidad de Residuos para el Tipo Seleccionado")
-        region_max_residuos = data[data["TIPO_RESIDUO"] == tipo_residuo].groupby("REGION")["CANTIDAD"].sum().idxmax()
-        st.write(f"La región con la mayor cantidad de residuos para {tipo_residuo} es: {region_max_residuos}")
+        st.write("**Media:**", data["cantidad"].mean())
+        st.write("**Mediana:**", data["cantidad"].median())
+        st.write("**Moda:**", data["cantidad"].mode()[0])
+        st.write("**Rango:**", data["cantidad"].max() - data["cantidad"].min())
         
-        # Mostrar estadísticas para los residuos en la región seleccionada
-        st.subheader(f"Estadísticas de Residuos en {region}")
-        cantidad_region = data[data["REGION"] == region]["CANTIDAD"].sum()
-        st.write(f"Cantidad total de residuos en la región {region}: {cantidad_region}")
+        # Resumen estadístico general
+        st.subheader("Resumen Estadístico")
+        st.write(data["cantidad"].describe())
         
-        # Análisis comparativo
-        st.header("Análisis Comparativo")
-
-        # Comparación entre regiones
-        st.subheader("Comparación entre Regiones")
-        plt.figure(figsize=(10, 6))
-        sns.barplot(data=data, x="REGION", y="CANTIDAD", hue="TIPO_RESIDUO", estimator=np.sum)
-        plt.xticks(rotation=45)
-        st.pyplot(plt)
-
-        # Comparación entre tipos de residuos en una misma región
-        st.subheader("Comparación entre Tipos de Residuos en la Región Seleccionada")
-        data_region = data[data["REGION"] == region]
-        plt.figure(figsize=(8, 5))
-        sns.barplot(data=data_region, x="TIPO_RESIDUO", y="CANTIDAD", estimator=np.sum)
-        st.pyplot(plt)
-
-        # Botón de descarga de resultados
-        st.header("Descarga de Resultados")
-        if st.button("Descargar Resumen en CSV"):
-            resumen_df = pd.DataFrame({
-                "Media": [media],
-                "Mediana": [mediana],
-                "Moda": [moda],
-                "Máximo": [maximo],
-                "Mínimo": [minimo],
-                "Desviación Estándar": [desviacion],
-                "Cantidad Total en Región Seleccionada": [cantidad_region]
-            })
-            resumen_df.to_csv("resumen.csv", index=False)
-            st.success("Archivo CSV generado con éxito.")
-
-        # Instrucciones y Ayuda
-        st.header("Instrucciones y Ayuda")
-        st.write("1. Sube un archivo CSV con las columnas: `REGION`, `TIPO_RESIDUO`, `CANTIDAD`.")
-        st.write("2. Usa los filtros para seleccionar el tipo de residuo y la región de interés.")
-        st.write("3. Visualiza las gráficas y descarga los resultados si es necesario.")
-
+        # Filtros de datos
+        st.sidebar.subheader("Filtros Interactivos")
+        tipo_residuo = st.sidebar.selectbox("Selecciona el tipo de residuo", data["tipo_residuo"].unique())
+        region = st.sidebar.selectbox("Selecciona la región", data["region"].unique())
+        
+        # Aplicar filtros a los datos
+        filtered_data = data[(data["tipo_residuo"] == tipo_residuo) & (data["region"] == region)]
+        
+        # Gráficas y visualizaciones
+        st.subheader("Visualización de Datos")
+        
+        # Gráfica de barras de residuos por región
+        st.write("**Cantidad de residuos por tipo y región**")
+        residuos_por_region = data.groupby("region")["cantidad"].sum()
+        st.bar_chart(residuos_por_region)
+        
+        # Gráfica de medidas de tendencia central para la región seleccionada
+        st.write(f"**Medidas de Tendencia Central para la región '{region}' y residuo '{tipo_residuo}'**")
+        tendencia_data = pd.DataFrame({
+            "Medida": ["Media", "Mediana", "Moda"],
+            "Valor": [filtered_data["cantidad"].mean(),
+                      filtered_data["cantidad"].median(),
+                      filtered_data["cantidad"].mode()[0]]
+        })
+        st.bar_chart(tendencia_data.set_index("Medida"))
+        
+        # Gráfica de la región con más residuos para el tipo seleccionado
+        st.write(f"**Región con más residuos del tipo '{tipo_residuo}'**")
+        residuos_por_tipo_region = data[data["tipo_residuo"] == tipo_residuo].groupby("region")["cantidad"].sum()
+        region_max_residuos = residuos_por_tipo_region.idxmax()
+        max_residuos = residuos_por_tipo_region.max()
+        st.write(f"La región con más residuos del tipo '{tipo_residuo}' es '{region_max_residuos}' con {max_residuos} unidades.")
+        
+        # Gráfica comparativa entre tipos de residuos en la región seleccionada
+        st.write(f"**Comparación entre tipos de residuos en la región '{region}'**")
+        comparacion_residuos = data[data["region"] == region].groupby("tipo_residuo")["cantidad"].sum()
+        st.bar_chart(comparacion_residuos)
+        
+        # Tabla de datos filtrados
+        st.subheader("Datos Filtrados")
+        st.write(filtered_data)
+        
+        # Opción de descargar resultados en CSV
+        st.sidebar.subheader("Descargar Resultados")
+        csv = filtered_data.to_csv(index=False)
+        st.sidebar.download_button(
+            label="Descargar datos filtrados en CSV",
+            data=csv,
+            file_name="datos_filtrados.csv",
+            mime="text/csv"
+        )
+        
     else:
-        st.error("El archivo CSV no contiene las columnas necesarias: 'REGION', 'TIPO_RESIDUO', 'CANTIDAD'.")
-
+        st.error("El archivo cargado no contiene las columnas necesarias ('tipo_residuo', 'region', 'cantidad').")
 else:
     st.info("Por favor, sube un archivo CSV para comenzar.")
-
 
 
