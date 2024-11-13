@@ -1,3 +1,4 @@
- plotly
+plotly
 folium
 json
+plotly.express 
