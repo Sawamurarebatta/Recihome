@@ -17,7 +17,13 @@ if uploaded_file is not None:
     # Mostrar una vista previa de los datos
     st.subheader("Vista Previa de los Datos Cargados")
     st.write(data.head())
-    
+    # Cargar datos con manejo de codificación
+try:
+    data = pd.read_csv(uploaded_file, encoding='utf-8')
+except UnicodeDecodeError:
+    # Si falla con 'utf-8', intenta con 'ISO-8859-1'
+    data = pd.read_csv(uploaded_file, encoding='ISO-8859-1')
+
     # Verificar que las columnas necesarias están presentes
     required_columns = ["tipo_residuo", "region", "cantidad"]
     if all(column in data.columns for column in required_columns):
